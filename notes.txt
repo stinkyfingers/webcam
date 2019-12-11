@@ -1,0 +1,16 @@
+https://www.pythonforthelab.com/blog/step-by-step-guide-to-building-a-gui/#installing-opencv-and-pyqt5
+
+source venv/bin/activate
+
+
+set req:
+pip freeze > requirements.txt
+
+
+entrypoint (controller): start.py
+
+gui & camera are example scripts
+
+
+BUILD HELP
+https://pythonspeed.com/articles/activate-virtualenv-dockerfile/
