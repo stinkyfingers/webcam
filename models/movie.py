@@ -1,14 +1,24 @@
 import cv2
 import os
+import numpy as np
+
+# TODO dictionary of image location
 
 class Movie:
     def __init__(self):
         self.dir = os.path.join(os.getcwd(), 'movie') # TODO rename project & project dir
         self.file_index = self.get_next_index()
         self.colorspace = cv2.IMREAD_COLOR
+        self.image_colorspace = cv2.COLOR_BGR2RGB
         self.colormap = {
             "Color": cv2.IMREAD_COLOR,
             "BGR": cv2.COLOR_BGR2RGB,
+            "Black & White": cv2.COLOR_BGR2GRAY,
+            "Yellow": cv2.COLOR_RGB2YUV
+        }
+        self.image_colormap = {
+            "Color": cv2.COLOR_BGR2RGB,
+            "BGR": cv2.IMREAD_COLOR,
             "Black & White": cv2.COLOR_BGR2GRAY,
             "Yellow": cv2.COLOR_RGB2YUV
         }
@@ -18,6 +28,7 @@ class Movie:
     def set_color(self, colorspace):
         if colorspace in self.colormap:
             self.colorspace = self.colormap[colorspace]
+            self.image_colorspace = self.image_colormap[colorspace]
 
     def write_frame(self, frame):
         filename = "frame.{}.jpg".format(self.file_index)
@@ -38,3 +49,20 @@ class Movie:
             if int(spl[1]) > high:
                 high = int(spl[1])
         return high + 1
+
+    def get_frames(self, width):
+        images = {}
+        for file in os.listdir(self.dir):
+            # TODO sort
+            scale = .2
+            raw_image = cv2.imread(os.path.join(self.dir, file))
+
+            # rgb translate & rotate
+            img = np.rot90(cv2.cvtColor(raw_image, self.image_colorspace))
+
+            # calc width
+            current_width = img.shape[0]
+            scale = width/current_width
+            dim = (int(img.shape[1] * scale), int(img.shape[0] * scale))
+            images[file] = cv2.resize(img, dim)
+        return images

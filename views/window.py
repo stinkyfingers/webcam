@@ -1,8 +1,10 @@
-from PyQt5.QtWidgets import QMainWindow, QWidget, QPushButton, QVBoxLayout, QHBoxLayout, QApplication, QSlider, QLabel, QComboBox
+from PyQt5.QtWidgets import QMainWindow, QWidget, QPushButton, QVBoxLayout, QHBoxLayout, QApplication, QSlider, QLabel, QComboBox, QSizePolicy
 from PyQt5.QtCore import Qt, QThread, QTimer
 import numpy as np
 from pyqtgraph import ImageView, GraphicsView
 from pyqtgraph.widgets.RawImageWidget import RawImageWidget
+import cv2
+
 
 class StartWindow(QMainWindow):
     def __init__(self, camera, movie):
@@ -11,11 +13,13 @@ class StartWindow(QMainWindow):
         self.movie = movie
         self.framerate = 1000
         self.central_widget = QWidget()
+        self.central_widget.resizeEvent = self.on_resize
         self.showMaximized()
 
         self.layout = QVBoxLayout(self.central_widget)
         self.controls()
         self.video_widget()
+        self.frames_widget()
 
         self.setCentralWidget(self.central_widget)
 
@@ -23,6 +27,10 @@ class StartWindow(QMainWindow):
         self.update_timer.timeout.connect(self.update_movie)
 
         self.movie_thread = None
+
+    def on_resize(self, event):
+        self.movie_width = self.image_view.geometry().width()
+        self.movie_height = self.image_view.geometry().height()
 
     def select_color(self):
         self.combo_box_color = QComboBox()
@@ -41,6 +49,22 @@ class StartWindow(QMainWindow):
         self.image_view = RawImageWidget()
         movie_view.addWidget(self.image_view)
         self.layout.addLayout(movie_view)
+
+    def frames_widget(self):
+        frames_view = QHBoxLayout()
+
+        frames = self.movie.get_frames(300)
+        for frame_name in frames:
+            fr_layout = QVBoxLayout()
+            label = QLabel()
+            label.setText(frame_name)
+            fr_layout.addWidget(label)
+            frame_view = RawImageWidget()
+            frame_view.setImage(frames[frame_name])
+            fr_layout.addWidget(frame_view)
+            frames_view.addLayout(fr_layout)
+
+        self.layout.addLayout(frames_view)
 
     def controls(self):
         self.button_frame = QPushButton('Acquire Frame', self.central_widget)
@@ -72,7 +96,12 @@ class StartWindow(QMainWindow):
         self.movie.write_frame(frame)
 
     def update_movie(self):
-        self.image_view.setImage(self.camera.get_frame())
+        img = self.camera.get_frame()
+        w_scale = self.movie_width/img.shape[0]
+        h_scale = self.movie_height/img.shape[1]
+        scale = w_scale if w_scale < h_scale else h_scale # smaller of height & width
+        dim = (int(img.shape[1] * scale), int(img.shape[0] * scale))
+        self.image_view.setImage(cv2.resize(img, dim))
 
     def update_framerate(self, value):
         self.stop_movie()
