@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import QMainWindow, QWidget, QPushButton, QVBoxLayout, QHBoxLayout, QApplication, QSlider, QLabel, QComboBox
 from PyQt5.QtCore import Qt, QThread, QTimer
 import numpy as np
-from pyqtgraph import ImageView
+from pyqtgraph import ImageView, GraphicsView
 from pyqtgraph.widgets.RawImageWidget import RawImageWidget
 
 class StartWindow(QMainWindow):
@@ -15,11 +15,10 @@ class StartWindow(QMainWindow):
 
         self.layout = QVBoxLayout(self.central_widget)
         self.controls()
+        self.video_widget()
 
         self.setCentralWidget(self.central_widget)
 
-        self.image_view = RawImageWidget()
-        self.layout.addWidget(self.image_view)
         self.update_timer = QTimer()
         self.update_timer.timeout.connect(self.update_movie)
 
@@ -29,12 +28,19 @@ class StartWindow(QMainWindow):
         self.combo_box_color = QComboBox()
         self.combo_box_color.addItems(["Black & White", "Color", "BGR", "Yellow"])
         self.combo_box_color.currentIndexChanged.connect(self.set_color)
+        self.combo_box_color.setCurrentIndex(1)
         return self.combo_box_color
 
     def set_color(self):
         color = self.combo_box_color.currentText()
         self.movie.set_color(color)
         self.camera.set_color(color)
+
+    def video_widget(self):
+        movie_view = QHBoxLayout()
+        self.image_view = RawImageWidget()
+        movie_view.addWidget(self.image_view)
+        self.layout.addLayout(movie_view)
 
     def controls(self):
         self.button_frame = QPushButton('Acquire Frame', self.central_widget)

@@ -1,4 +1,5 @@
 import cv2
+import numpy as np
 
 class Camera:
     def __init__(self, cam_num):
@@ -25,13 +26,8 @@ class Camera:
 
         # rgb translate
         frame = cv2.cvtColor(self.last_frame, self.colorspace)
-
-        # rotate - https://www.tutorialkart.com/opencv/python/opencv-python-rotate-image/
-        (h, w) = frame.shape[:2]
-        center = (w / 2, h / 2)
-        M = cv2.getRotationMatrix2D(center, 90, 1.0)
-        rotated90 = cv2.warpAffine(frame, M, (h, w))
-        return rotated90
+        # rotate
+        return np.rot90(frame)
 
     def get_raw_frame(self):
         """
