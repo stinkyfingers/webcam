@@ -1,10 +1,11 @@
-from PyQt5.QtWidgets import QMainWindow, QWidget, QPushButton, QVBoxLayout, QHBoxLayout, QApplication, QSlider, QLabel, QComboBox, QSizePolicy
+from PyQt5.QtWidgets import QMainWindow, QWidget, QPushButton, QVBoxLayout, QHBoxLayout, QApplication, QSlider, QLabel, QComboBox, QSizePolicy, QScrollArea, QGroupBox, QFrame
 from PyQt5.QtCore import Qt, QThread, QTimer
+from PyQt5.QtGui import QPixmap
 import numpy as np
 from pyqtgraph import ImageView, GraphicsView
 from pyqtgraph.widgets.RawImageWidget import RawImageWidget
 import cv2
-
+import os
 
 class StartWindow(QMainWindow):
     def __init__(self, camera, movie):
@@ -12,9 +13,11 @@ class StartWindow(QMainWindow):
         self.camera = camera
         self.movie = movie
         self.framerate = 1000
+        self.mode = 'camera'
         self.central_widget = QWidget()
         self.central_widget.resizeEvent = self.on_resize
-        self.showMaximized()
+        # self.showMaximized()
+        self.resize(1000, 800)
 
         self.layout = QVBoxLayout(self.central_widget)
         self.controls()
@@ -24,9 +27,10 @@ class StartWindow(QMainWindow):
         self.setCentralWidget(self.central_widget)
 
         self.update_timer = QTimer()
-        self.update_timer.timeout.connect(self.update_movie)
+        self.update_timer.timeout.connect(self.playback_handler)
 
         self.movie_thread = None
+
 
     def on_resize(self, event):
         self.movie_width = self.image_view.geometry().width()
@@ -51,20 +55,30 @@ class StartWindow(QMainWindow):
         self.layout.addLayout(movie_view)
 
     def frames_widget(self):
-        frames_view = QHBoxLayout()
+        group = QGroupBox('Frames')
+        lay = QHBoxLayout()
+        group.setLayout(lay)
+        frames = self.movie.get_frame_details()
+        # TODO sort
 
-        frames = self.movie.get_frames(300)
         for frame_name in frames:
             fr_layout = QVBoxLayout()
-            label = QLabel()
-            label.setText(frame_name)
-            fr_layout.addWidget(label)
-            frame_view = RawImageWidget()
-            frame_view.setImage(frames[frame_name])
-            fr_layout.addWidget(frame_view)
-            frames_view.addLayout(fr_layout)
 
-        self.layout.addLayout(frames_view)
+            pixmap = QPixmap(frame_name)
+            pixmap = pixmap.scaledToWidth(300) # TODO make sizeable
+            pix_label = QLabel(frame_name)
+            pix_label.setPixmap(pixmap)
+            fr_layout.addWidget(pix_label)
+
+            file_label = QLabel()
+            file_label.setText(os.path.basename(frame_name))
+            fr_layout.addWidget(file_label)
+
+            lay.addLayout(fr_layout)
+
+        scroll_area = QScrollArea()
+        scroll_area.setWidget(group)
+        self.layout.addWidget(scroll_area)
 
     def controls(self):
         self.button_frame = QPushButton('Acquire Frame', self.central_widget)
@@ -79,6 +93,7 @@ class StartWindow(QMainWindow):
         movie_controls = QHBoxLayout()
         movie_controls.addWidget(self.button_frame)
         movie_controls.addWidget(self.button_movie)
+        self.toggle_mode_controls(movie_controls)
         movie_controls.addWidget(self.slider_framerate)
         movie_controls.addWidget(self.label_framerate)
         movie_controls.addWidget(self.select_color())
@@ -95,20 +110,32 @@ class StartWindow(QMainWindow):
         file = "test.jpg"
         self.movie.write_frame(frame)
 
+    def playback_handler(self):
+        if self.mode == 'playback':
+            return self.update_playback_frame()
+        return self.update_movie()
+
     def update_movie(self):
         img = self.camera.get_frame()
-        w_scale = self.movie_width/img.shape[0]
-        h_scale = self.movie_height/img.shape[1]
-        scale = w_scale if w_scale < h_scale else h_scale # smaller of height & width
-        dim = (int(img.shape[1] * scale), int(img.shape[0] * scale))
-        self.image_view.setImage(cv2.resize(img, dim))
+        self.image_view.setImage(self.movie.size_image(img, self.movie_width, self.movie_height))
+
+    def update_playback_frame(self):
+        self.image_view.setImage(self.movie.get_frame(self.movie.playback_index, self.movie_width, self.movie_height))
+        self.movie.playback_index += 1
+        if  self.movie.playback_index > self.movie.get_movie_length() - 1:
+            self.stop_movie()
+            self.movie.playback_index = 0
 
     def update_framerate(self, value):
-        self.stop_movie()
+        restart = False
+        if self.movie_thread:
+            self.stop_movie()
+            restart = True
         self.framerate = value * 100
         self.label_framerate.setText("Frame Rate: {}".format(self.framerate))
-        self.movie_thread.wait()
-        self.start_movie()
+        if restart:
+            self.movie_thread.wait()
+            self.start_movie()
 
     def start_stop_movie(self):
         if not self.movie_thread or self.movie_thread.isFinished():
@@ -124,6 +151,35 @@ class StartWindow(QMainWindow):
     def stop_movie(self):
         self.movie_thread.quit()
         self.update_timer.stop()
+
+    def toggle_mode_controls(self, control_layout):
+        group = QGroupBox('Mode')
+        layout = QHBoxLayout()
+        group.setLayout(layout)
+
+        button_camera_mode = QPushButton('Camera Mode', self.central_widget)
+        button_camera_mode.clicked[bool].connect(self.toggle_mode)
+        layout.addWidget(button_camera_mode)
+
+        button_playback_mode = QPushButton('Playback Mode', self.central_widget)
+        button_playback_mode.clicked[bool].connect(self.toggle_mode)
+        layout.addWidget(button_playback_mode)
+
+        self.label_mode = QLabel()
+        self.label_mode.setText('Camera Mode')
+        layout.addWidget(self.label_mode)
+
+        control_layout.addWidget(group)
+
+    def toggle_mode(self):
+        self.label_mode.setText(self.sender().text())
+        if self.sender().text() == 'Camera Mode':
+            self.mode = 'camera'
+            self.button_frame.setDisabled(False)
+        if self.sender().text() == 'Playback Mode':
+            self.mode = 'playback'
+            self.button_frame.setDisabled(True)
+
 
     def close(self):
         self.image_view.close()

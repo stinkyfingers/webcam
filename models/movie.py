@@ -8,6 +8,7 @@ class Movie:
     def __init__(self):
         self.dir = os.path.join(os.getcwd(), 'movie') # TODO rename project & project dir
         self.file_index = self.get_next_index()
+        self.playback_index = 0
         self.colorspace = cv2.IMREAD_COLOR
         self.image_colorspace = cv2.COLOR_BGR2RGB
         self.colormap = {
@@ -50,7 +51,7 @@ class Movie:
                 high = int(spl[1])
         return high + 1
 
-    def get_frames(self, width):
+    def get_frames(self, width, height):
         images = {}
         for file in os.listdir(self.dir):
             # TODO sort
@@ -59,10 +60,36 @@ class Movie:
 
             # rgb translate & rotate
             img = np.rot90(cv2.cvtColor(raw_image, self.image_colorspace))
-
-            # calc width
-            current_width = img.shape[0]
-            scale = width/current_width
-            dim = (int(img.shape[1] * scale), int(img.shape[0] * scale))
-            images[file] = cv2.resize(img, dim)
+            images[file] = self.size_image(img, width, height)
         return images
+
+    def get_frame_details(self):
+        files = []
+        for file in os.listdir(self.dir):
+            files.append(os.path.join(self.dir, file))
+        return files
+
+    def get_frame(self, index, width, height):
+        # TODO handle sort
+        file = os.listdir(self.dir)[index]
+        scale = .2
+        raw_image = cv2.imread(os.path.join(self.dir, file))
+
+        # rgb translate & rotate
+        img = np.rot90(cv2.cvtColor(raw_image, self.image_colorspace))
+        output = self.size_image(img, width, height)
+        return output
+
+    def get_movie_length(self):
+        return len(os.listdir(self.dir))
+        
+    @staticmethod
+    def size_image(img, width, height):
+        """
+        scales image to fit smaller of width and height provided
+        """
+        w_scale = width/img.shape[0]
+        h_scale = height/img.shape[1]
+        scale = w_scale if w_scale < h_scale else h_scale # smaller of height & width
+        dim = (int(img.shape[1] * scale), int(img.shape[0] * scale))
+        return cv2.resize(img, dim)
