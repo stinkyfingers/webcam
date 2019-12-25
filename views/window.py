@@ -8,10 +8,11 @@ import cv2
 import os
 
 class StartWindow(QMainWindow):
-    def __init__(self, camera, movie):
+    def __init__(self, camera, movie, video):
         super().__init__()
         self.camera = camera
         self.movie = movie
+        self.video = video
         self.framerate = 1000
         self.mode = 'camera'
         self.central_widget = QWidget()
@@ -83,6 +84,7 @@ class StartWindow(QMainWindow):
     def controls(self):
         self.button_frame = QPushButton('Acquire Frame', self.central_widget)
         self.button_movie = QPushButton('Start/Stop Movie', self.central_widget)
+        self.button_export = QPushButton('Export Movie', self.central_widget)
 
         self.slider_framerate = QSlider(Qt.Horizontal)
         self.slider_framerate.setRange(1, 10)
@@ -93,6 +95,7 @@ class StartWindow(QMainWindow):
         movie_controls = QHBoxLayout()
         movie_controls.addWidget(self.button_frame)
         movie_controls.addWidget(self.button_movie)
+        movie_controls.addWidget(self.button_export)
         self.toggle_mode_controls(movie_controls)
         movie_controls.addWidget(self.slider_framerate)
         movie_controls.addWidget(self.label_framerate)
@@ -102,6 +105,7 @@ class StartWindow(QMainWindow):
 
         self.button_frame.clicked.connect(self.write_image)
         self.button_movie.clicked.connect(self.start_stop_movie)
+        self.button_export.clicked.connect(self.export_movie)
         self.slider_framerate.valueChanged.connect(self.update_framerate)
         self.label_framerate.setText("Frame Rate: {}".format(self.framerate))
 
@@ -180,9 +184,11 @@ class StartWindow(QMainWindow):
             self.mode = 'playback'
             self.button_frame.setDisabled(True)
 
-
     def close(self):
         self.image_view.close()
+
+    def export_movie(self):
+        self.video.write_mpg()
 
 class MovieThread(QThread):
     def __init__(self, camera):

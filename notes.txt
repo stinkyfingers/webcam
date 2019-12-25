@@ -14,3 +14,6 @@ gui & camera are example scripts
 
 BUILD HELP
 https://pythonspeed.com/articles/activate-virtualenv-dockerfile/
+
+Build video
+ffmpeg -framerate 2 -i movie/frame.%01d.jpg out.mp4
