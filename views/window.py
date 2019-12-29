@@ -18,6 +18,7 @@ class StartWindow(QMainWindow):
         self.mode = 'camera'
         self.menu = Menu(self)
         self.menu.menu()
+        self.frames = self.movie.get_frame_details()
 
         self.central_widget = QWidget()
         self.central_widget.resizeEvent = self.on_resize
@@ -61,29 +62,27 @@ class StartWindow(QMainWindow):
 
     def frames_widget(self):
         group = QGroupBox('Frames')
-        lay = QHBoxLayout()
-        group.setLayout(lay)
-        frames = self.movie.get_frame_details()
-        # TODO sort
+        self.frame_layout = QHBoxLayout()
+        group.setLayout(self.frame_layout)
 
-        for frame_name in frames:
-            fr_layout = QVBoxLayout()
-
-            pixmap = QPixmap(frame_name)
-            pixmap = pixmap.scaledToWidth(300) # TODO make sizeable
-            pix_label = QLabel(frame_name)
-            pix_label.setPixmap(pixmap)
-            fr_layout.addWidget(pix_label)
-
-            file_label = QLabel()
-            file_label.setText(os.path.basename(frame_name))
-            fr_layout.addWidget(file_label)
-
-            lay.addLayout(fr_layout)
+        for frame_name in self.frames:
+            self.add_frame(frame_name)
 
         scroll_area = QScrollArea()
         scroll_area.setWidget(group)
         self.layout.addWidget(scroll_area)
+
+    def add_frame(self, frame_name):
+        fr_layout = QVBoxLayout()
+        pixmap = QPixmap(frame_name)
+        pixmap = pixmap.scaledToWidth(300) # TODO make sizeable
+        pix_label = QLabel(frame_name)
+        pix_label.setPixmap(pixmap)
+        fr_layout.addWidget(pix_label)
+        file_label = QLabel()
+        file_label.setText(os.path.basename(frame_name))
+        fr_layout.addWidget(file_label)
+        self.frame_layout.addLayout(fr_layout)
 
     def controls(self):
         self.button_frame = QPushButton('Acquire Frame', self.central_widget)
@@ -112,8 +111,9 @@ class StartWindow(QMainWindow):
 
     def write_image(self):
         frame = self.camera.get_raw_frame()
-        file = "test.jpg"
-        self.movie.write_frame(frame)
+        filename = self.movie.write_frame(frame)
+        print(filename)
+        self.add_frame(filename)
 
     def playback_handler(self):
         if self.mode == 'playback':

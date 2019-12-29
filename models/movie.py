@@ -38,6 +38,7 @@ class Movie:
         image = cv2.cvtColor(frame, self.colorspace)
         cv2.imwrite(path, image)
         self.file_index += 1
+        return path
 
     def get_next_index(self):
         high = -1
