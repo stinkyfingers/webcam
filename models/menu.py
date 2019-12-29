@@ -31,7 +31,7 @@ class Menu():
         sys.exit()
 
     def export(self):
-        self.window.video.write_mpg()
+        self.window.video.write_mpg(10)
 
     def import_image(self):
         print("not implemented")
