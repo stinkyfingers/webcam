@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QMainWindow, QWidget, QPushButton, QVBoxLayout, QHBoxLayout, QApplication, QSlider, QLabel, QComboBox, QSizePolicy, QScrollArea, QGroupBox, QFrame
+from PyQt5.QtWidgets import QMainWindow, QWidget, QPushButton, QVBoxLayout, QHBoxLayout, QApplication, QSlider, QLabel, QComboBox, QSizePolicy, QScrollArea, QGroupBox, QFrame, QAction
 from PyQt5.QtCore import Qt, QThread, QTimer
 from PyQt5.QtGui import QPixmap
 import numpy as np
@@ -6,6 +6,7 @@ from pyqtgraph import ImageView, GraphicsView
 from pyqtgraph.widgets.RawImageWidget import RawImageWidget
 import cv2
 import os
+from models.menu import Menu
 
 class StartWindow(QMainWindow):
     def __init__(self, camera, movie, video):
@@ -15,10 +16,13 @@ class StartWindow(QMainWindow):
         self.video = video
         self.framerate = 1000
         self.mode = 'camera'
+        self.menu = Menu(self)
+        self.menu.menu()
+
         self.central_widget = QWidget()
         self.central_widget.resizeEvent = self.on_resize
         # self.showMaximized()
-        self.resize(1000, 800)
+        self.resize(1400, 1000)
 
         self.layout = QVBoxLayout(self.central_widget)
         self.controls()
@@ -84,7 +88,6 @@ class StartWindow(QMainWindow):
     def controls(self):
         self.button_frame = QPushButton('Acquire Frame', self.central_widget)
         self.button_movie = QPushButton('Start/Stop Movie', self.central_widget)
-        self.button_export = QPushButton('Export Movie', self.central_widget)
 
         self.slider_framerate = QSlider(Qt.Horizontal)
         self.slider_framerate.setRange(1, 10)
@@ -95,7 +98,6 @@ class StartWindow(QMainWindow):
         movie_controls = QHBoxLayout()
         movie_controls.addWidget(self.button_frame)
         movie_controls.addWidget(self.button_movie)
-        movie_controls.addWidget(self.button_export)
         self.toggle_mode_controls(movie_controls)
         movie_controls.addWidget(self.slider_framerate)
         movie_controls.addWidget(self.label_framerate)
@@ -105,7 +107,6 @@ class StartWindow(QMainWindow):
 
         self.button_frame.clicked.connect(self.write_image)
         self.button_movie.clicked.connect(self.start_stop_movie)
-        self.button_export.clicked.connect(self.export_movie)
         self.slider_framerate.valueChanged.connect(self.update_framerate)
         self.label_framerate.setText("Frame Rate: {}".format(self.framerate))
 
@@ -186,9 +187,6 @@ class StartWindow(QMainWindow):
 
     def close(self):
         self.image_view.close()
-
-    def export_movie(self):
-        self.video.write_mpg()
 
 class MovieThread(QThread):
     def __init__(self, camera):

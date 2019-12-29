@@ -82,7 +82,7 @@ class Movie:
 
     def get_movie_length(self):
         return len(os.listdir(self.dir))
-        
+
     @staticmethod
     def size_image(img, width, height):
         """

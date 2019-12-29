@@ -15,5 +15,17 @@ gui & camera are example scripts
 BUILD HELP
 https://pythonspeed.com/articles/activate-virtualenv-dockerfile/
 
-Build video
+Build video w/ ffmpeg
 ffmpeg -framerate 2 -i movie/frame.%01d.jpg out.mp4
+
+Menu help:
+http://zetcode.com/gui/pyqt5/menustoolbars/
+
+TODO list
+delete frame
+new project/dir
+toolbar
+move frame (or cut & paste)
+delete project
+name movie during export
+frame & movie aspect ratio
