@@ -42,9 +42,7 @@ class Movie:
         high = -1
         for file in os.listdir(self.dir):
             filename = os.fsdecode(file)
-            print('---', filename)
             spl = filename.split('.')
-            print(spl)
             if len(spl) < 3:
                 continue #TODO malformed filename
             if int(spl[1]) > high:

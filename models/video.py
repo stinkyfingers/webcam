@@ -16,10 +16,10 @@ class Video:
         frame = cv2.imread(os.path.join(self.dir, images[0]))
         height, width, layers = frame.shape # sample shape
 
-        out = cv2.VideoWriter(self.output_file, fourcc, 1, (width, height)) #TODO 
+        out = cv2.VideoWriter(self.output_file, fourcc, 1, (width, height)) #TODO
         dirs = os.listdir(self.dir)
 
-        for file in sorted(os.listdir(self.dir)):
+        for file in sorted(os.listdir(self.dir), key = self.sort_func):
             image_path = os.path.join(self.dir, file)
             image = cv2.imread(image_path)
             resized = cv2.resize(image, (width, height))
@@ -27,3 +27,9 @@ class Video:
 
         cv2.destroyAllWindows()
         out.release()
+
+
+    @staticmethod
+    def sort_func(s):
+        arr = s.split('.')
+        return int(arr[1])
