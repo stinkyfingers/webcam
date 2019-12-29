@@ -8,15 +8,16 @@ class Video:
         self.camera = camera
         self.dir = os.path.join(os.getcwd(), 'movie') # TODO rename project & project dir
         self.output_file = 'output.mp4' # TODO file name option
+        self.framerate = 1
 
-    def write_mpg(self, frame_rate):
+    def write_mpg(self):
         fourcc = cv2.VideoWriter_fourcc(*'mp4v')
 
         images = [img for img in os.listdir(self.dir) if img.endswith(".jpg")]
         frame = cv2.imread(os.path.join(self.dir, images[0]))
         height, width, layers = frame.shape # sample shape
 
-        out = cv2.VideoWriter(self.output_file, fourcc, frame_rate, (width, height)) #TODO
+        out = cv2.VideoWriter(self.output_file, fourcc, self.framerate, (width, height)) #TODO
         dirs = os.listdir(self.dir)
 
         for file in sorted(os.listdir(self.dir), key = self.sort_func):

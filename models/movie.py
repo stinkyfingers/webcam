@@ -1,6 +1,7 @@
 import cv2
 import os
 import numpy as np
+from models.video import Video
 
 # TODO dictionary of image location
 
@@ -49,21 +50,22 @@ class Movie:
                 high = int(spl[1])
         return high + 1
 
-    def get_frames(self, width, height):
-        images = {}
-        for file in os.listdir(self.dir):
-            # TODO sort
-            scale = .2
-            raw_image = cv2.imread(os.path.join(self.dir, file))
-
-            # rgb translate & rotate
-            img = np.rot90(cv2.cvtColor(raw_image, self.image_colorspace))
-            images[file] = self.size_image(img, width, height)
-        return images
+    # TODO - remove if not used
+    # def get_frames(self, width, height):
+    #     images = {}
+    #     for file in sorted(os.listdir(self.dir), key = Video.sort_func):
+    #         # TODO sort
+    #         scale = .2
+    #         raw_image = cv2.imread(os.path.join(self.dir, file))
+    #
+    #         # rgb translate & rotate
+    #         img = np.rot90(cv2.cvtColor(raw_image, self.image_colorspace))
+    #         images[file] = self.size_image(img, width, height)
+    #     return images
 
     def get_frame_details(self):
         files = []
-        for file in os.listdir(self.dir):
+        for file in sorted(os.listdir(self.dir), key = Video.sort_func):
             files.append(os.path.join(self.dir, file))
         return files
 

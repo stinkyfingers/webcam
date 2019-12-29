@@ -137,6 +137,7 @@ class StartWindow(QMainWindow):
             self.stop_movie()
             restart = True
         self.framerate = value * 100
+        self.video.framerate = self.framerate
         self.label_framerate.setText("Frame Rate: {}".format(self.framerate))
         if restart:
             self.movie_thread.wait()
