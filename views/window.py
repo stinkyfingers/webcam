@@ -6,8 +6,9 @@ from pyqtgraph import ImageView, GraphicsView
 from pyqtgraph.widgets.RawImageWidget import RawImageWidget
 import cv2
 import os
-from models.menu import Menu
+from models.menu import Menu, OpenProjectDialog
 from models.statusbar import StatusBar
+from models.config import Config
 
 class StartWindow(QMainWindow):
     def __init__(self, camera, movie, video):
@@ -17,8 +18,11 @@ class StartWindow(QMainWindow):
         self.video = video
         self.framerate = 1000
         self.mode = 'camera'
-        self.menu = Menu(self)
+        self.menu = Menu(self, self.project_change_callback)
         self.menu.menu()
+        self.project_dialog = OpenProjectDialog()
+        self.project_dialog.show(self.select_project_callback)
+
         self.frames = self.movie.get_frame_details()
         self.statusBar = StatusBar(self)
 
@@ -38,7 +42,6 @@ class StartWindow(QMainWindow):
         self.update_timer.timeout.connect(self.playback_handler)
 
         self.movie_thread = None
-
 
     def on_resize(self, event):
         self.movie_width = self.image_view.geometry().width()
@@ -63,16 +66,15 @@ class StartWindow(QMainWindow):
         self.layout.addLayout(movie_view)
 
     def frames_widget(self):
-        group = QGroupBox('Frames')
+        self.frames_group = QGroupBox('Frames')
         self.frame_layout = QHBoxLayout()
-        group.setLayout(self.frame_layout)
-
+        self.frames_group.setLayout(self.frame_layout)
+        self.scroll_area = QScrollArea()
+        self.scroll_area.setWidgetResizable(True)
+        self.layout.addWidget(self.scroll_area)
         for frame_name in self.frames:
             self.add_frame(frame_name)
-
-        scroll_area = QScrollArea()
-        scroll_area.setWidget(group)
-        self.layout.addWidget(scroll_area)
+        self.scroll_area.setWidget(self.frames_group)
 
     def add_frame(self, frame_name):
         fr_layout = QVBoxLayout()
@@ -114,8 +116,8 @@ class StartWindow(QMainWindow):
     def write_image(self):
         frame = self.camera.get_raw_frame()
         filename = self.movie.write_frame(frame)
-        print(filename)
         self.add_frame(filename)
+        self.scroll_area.setWidget(self.frames_group)
 
     def playback_handler(self):
         if self.mode == 'playback':
@@ -190,6 +192,18 @@ class StartWindow(QMainWindow):
 
     def close(self):
         self.image_view.close()
+
+    def project_change_callback(self):
+        c = Config()
+        self.movie.dir = c.get_project_dir()
+        self.movie.file_index = self.movie.get_next_index()
+        self.layout.removeWidget(self.scroll_area)
+        self.frames = self.movie.get_frame_details()
+        self.frames_widget()
+
+    def select_project_callback(self):
+        c = Config()
+        self.movie.dir = c.get_project_dir()
 
 class MovieThread(QThread):
     def __init__(self, camera):

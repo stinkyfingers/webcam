@@ -9,7 +9,7 @@ from models.config import Config
 class Movie:
     def __init__(self):
         c = Config()
-        self.dir = os.path.join(os.getcwd(), c.get_project_dir()) 
+        self.dir = os.path.join(os.getcwd(), c.get_project_dir())
         self.file_index = self.get_next_index()
         self.playback_index = 0
         self.colorspace = cv2.IMREAD_COLOR
@@ -89,6 +89,7 @@ class Movie:
         return len(os.listdir(self.dir))
 
     def new_project(self, name):
+        self.movie.file_index = self.movie.get_next_index()
         self.dir = os.path.join(os.getcwd(), name)
         if not os.path.exists(self.dir):
             os.makedirs(self.dir)

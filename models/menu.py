@@ -1,12 +1,13 @@
 from PyQt5 import QtGui, QtCore
-from PyQt5.QtWidgets import QMenu, QAction, QDialog, QPushButton, QLineEdit
+from PyQt5.QtWidgets import QMenu, QAction, QDialog, QPushButton, QLineEdit, QFileDialog
 import sys
 import os
 from models.config import Config
 
 class Menu():
-    def __init__(self, window):
+    def __init__(self, window, project_change_callback):
         self.window = window
+        self.project_change_callback = project_change_callback
 
     def menu(self):
         self.main_menu = self.window.menuBar()
@@ -22,6 +23,11 @@ class Menu():
         new_option.setShortcut('Ctrl+N')
         new_option.triggered.connect(self.new_project)
         self.file_menu.addAction(new_option)
+
+        open_option = QAction('&Open Project', self.window)
+        open_option.setShortcut('Ctrl+O')
+        open_option.triggered.connect(self.open_project)
+        self.file_menu.addAction(open_option)
 
         export_option = QAction('&Export', self.window)
         export_option.setShortcut('Ctrl+E')
@@ -40,6 +46,10 @@ class Menu():
     def new_project(self):
         dialog = NewProjectDialog()
         dialog.show()
+
+    def open_project(self):
+        dialog = OpenProjectDialog()
+        dialog.show(self.project_change_callback)
 
     def export(self):
         self.window.video.write_mpg()
@@ -74,4 +84,17 @@ class NewProjectDialog():
             os.mkdir(project)
         config = Config()
         config.upsert({'project': project})
+        self.dialog.accept()
+
+class OpenProjectDialog():
+    def __init__(self):
+        self.dialog = QFileDialog()
+        self.dialog.setFileMode(QFileDialog.Directory)
+
+    def show(self, project_change_callback):
+        self.dialog.exec_()
+        project = self.dialog.selectedFiles()[0]
+        config = Config()
+        config.upsert({'project': project})
+        project_change_callback()
         self.dialog.accept()
