@@ -1,12 +1,14 @@
 import cv2
 import os
 import numpy as np
+from models.config import Config
 
 class Video:
     def __init__(self, movie, camera):
         self.movie = movie
         self.camera = camera
-        self.dir = os.path.join(os.getcwd(), 'movie') # TODO rename project & project dir
+        c = Config()
+        self.dir = os.path.join(os.getcwd(), c.get_project_dir())
         self.output_file = 'output.mp4' # TODO file name option
         self.framerate = 1
 

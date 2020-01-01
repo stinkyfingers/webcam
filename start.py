@@ -5,7 +5,6 @@ from views.window import StartWindow
 from models.movie import Movie
 from models.video import Video
 
-
 camera = Camera(0)
 camera.initialize()
 

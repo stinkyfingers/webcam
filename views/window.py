@@ -7,6 +7,7 @@ from pyqtgraph.widgets.RawImageWidget import RawImageWidget
 import cv2
 import os
 from models.menu import Menu
+from models.statusbar import StatusBar
 
 class StartWindow(QMainWindow):
     def __init__(self, camera, movie, video):
@@ -19,6 +20,7 @@ class StartWindow(QMainWindow):
         self.menu = Menu(self)
         self.menu.menu()
         self.frames = self.movie.get_frame_details()
+        self.statusBar = StatusBar(self)
 
         self.central_widget = QWidget()
         self.central_widget.resizeEvent = self.on_resize

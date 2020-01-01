@@ -2,12 +2,14 @@ import cv2
 import os
 import numpy as np
 from models.video import Video
+from models.config import Config
 
 # TODO dictionary of image location
 
 class Movie:
     def __init__(self):
-        self.dir = os.path.join(os.getcwd(), 'movie') # TODO rename project & project dir
+        c = Config()
+        self.dir = os.path.join(os.getcwd(), c.get_project_dir()) 
         self.file_index = self.get_next_index()
         self.playback_index = 0
         self.colorspace = cv2.IMREAD_COLOR
@@ -42,6 +44,8 @@ class Movie:
 
     def get_next_index(self):
         high = -1
+        if not os.path.isdir(self.dir):
+            return 0
         for file in os.listdir(self.dir):
             filename = os.fsdecode(file)
             spl = filename.split('.')
@@ -83,6 +87,14 @@ class Movie:
 
     def get_movie_length(self):
         return len(os.listdir(self.dir))
+
+    def new_project(self, name):
+        self.dir = os.path.join(os.getcwd(), name)
+        if not os.path.exists(self.dir):
+            os.makedirs(self.dir)
+            return self.dir
+        else:
+            raise FileExistsError('project already exists')
 
     @staticmethod
     def size_image(img, width, height):

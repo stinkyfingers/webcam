@@ -29,3 +29,5 @@ move frame (or cut & paste)
 delete project
 name movie during export
 frame & movie aspect ratio
+select existing project
+frames aappend without expanding container
