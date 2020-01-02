@@ -76,7 +76,7 @@ class Movie:
 
     def get_frame(self, index, width, height):
         # TODO handle sort
-        file = os.listdir(self.dir)[index]
+        file = sorted(os.listdir(self.dir), key = Video.sort_func)[index]
         scale = .2
         raw_image = cv2.imread(os.path.join(self.dir, file))
 

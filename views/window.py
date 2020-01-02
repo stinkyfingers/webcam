@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import QMainWindow, QWidget, QPushButton, QVBoxLayout, QHBoxLayout, QApplication, QSlider, QLabel, QComboBox, QSizePolicy, QScrollArea, QGroupBox, QFrame, QAction
 from PyQt5.QtCore import Qt, QThread, QTimer
-from PyQt5.QtGui import QPixmap
+from PyQt5.QtGui import QPixmap, QTransform
 import numpy as np
 from pyqtgraph import ImageView, GraphicsView
 from pyqtgraph.widgets.RawImageWidget import RawImageWidget
@@ -79,7 +79,7 @@ class StartWindow(QMainWindow):
     def add_frame(self, frame_name):
         fr_layout = QVBoxLayout()
         pixmap = QPixmap(frame_name)
-        pixmap = pixmap.scaledToWidth(300) # TODO make sizeable
+        pixmap = pixmap.scaledToWidth(300).transformed(QTransform().scale(-1, 1)) # TODO make sizeable
         pix_label = QLabel(frame_name)
         pix_label.setPixmap(pixmap)
         fr_layout.addWidget(pix_label)
