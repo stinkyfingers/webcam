@@ -1,7 +1,7 @@
 altgraph==0.16.1
 macholib==1.11
 numpy==1.16.5
-opencv-contrib-python==4.1.2.30
+opencv-contrib-python-headless==4.1.2.30
 opencv-python==4.1.2.30
 PyInstaller==3.5
 PyQt5==5.13.2
