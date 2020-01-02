@@ -97,6 +97,10 @@ class Movie:
         else:
             raise FileExistsError('project already exists')
 
+    def delete_frame(self, index):
+        file = sorted(os.listdir(self.dir), key = Video.sort_func)[index]
+        os.remove(os.path.join(self.dir, file))
+
     @staticmethod
     def size_image(img, width, height):
         """
