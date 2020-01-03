@@ -22,9 +22,8 @@ Menu help:
 http://zetcode.com/gui/pyqt5/menustoolbars/
 
 TODO list
-delete frame
+
 new project/dir
-toolbar
 move frame (or cut & paste)
 delete project
 name movie during export
