@@ -26,6 +26,8 @@ class Camera:
 
         # rgb translate
         frame = cv2.cvtColor(self.last_frame, self.colorspace)
+        # flip vertical
+        frame = cv2.flip(frame, 1)
         # rotate
         return np.rot90(frame)
 

@@ -55,18 +55,11 @@ class Movie:
                 high = int(spl[1])
         return high + 1
 
-    # TODO - remove if not used
-    # def get_frames(self, width, height):
-    #     images = {}
-    #     for file in sorted(os.listdir(self.dir), key = Video.sort_func):
-    #         # TODO sort
-    #         scale = .2
-    #         raw_image = cv2.imread(os.path.join(self.dir, file))
-    #
-    #         # rgb translate & rotate
-    #         img = np.rot90(cv2.cvtColor(raw_image, self.image_colorspace))
-    #         images[file] = self.size_image(img, width, height)
-    #     return images
+    def get_frame_number(self, filename):
+        spl = filename.split('.')
+        if len(spl) < 3:
+            return -1
+        return int(spl[1])
 
     def get_frame_details(self):
         files = []
@@ -100,6 +93,33 @@ class Movie:
     def delete_frame(self, index):
         file = sorted(os.listdir(self.dir), key = Video.sort_func)[index]
         os.remove(os.path.join(self.dir, file))
+
+    def shift_frames(self, moved_index, dest_index):
+        if moved_index > dest_index:
+            self.shift_frames_up(moved_index, dest_index)
+        if moved_index < dest_index:
+            self.shift_frames_down(moved_index, dest_index)
+
+# TODO is deleting frames
+    def shift_frames_up(self, moved_index, dest_index):
+        files = self.get_frame_details()
+        os.rename(files[moved_index], os.path.join(self.dir, 'frame.temp.jpg'))
+        moved_file_name = os.path.join(self.dir,files[dest_index])
+
+        for file in files[dest_index: moved_index]:
+            os.rename(file, os.path.join(self.dir, 'frame.{}.jgp'.format(self.get_frame_number(file) + 1)))
+        print('rename', moved_file_name)
+        os.rename(os.path.join(self.dir, 'frame.temp.jpg'), moved_file_name)
+
+    def shift_frames_down(self, moved_index, dest_index):
+        files = self.get_frame_details()
+        os.rename(files[moved_index], os.path.join(self.dir, 'frame.temp.jpg'))
+        moved_file_name = os.path.join(self.dir,files[dest_index])
+
+        for file in files[moved_index: dest_index]:
+            os.rename(file, os.path.join(self.dir, 'frame.{}.jgp'.format(self.get_frame_number(file) - 1)))
+        os.rename(os.path.join(self.dir, 'frame.temp.jpg'), moved_file_name)
+
 
     @staticmethod
     def size_image(img, width, height):

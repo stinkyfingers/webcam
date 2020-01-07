@@ -1,7 +1,8 @@
 from PyQt5.QtWidgets import QPushButton, QVBoxLayout, QHBoxLayout, QLabel, QScrollArea, QGroupBox, QLineEdit
 from PyQt5.QtGui import QPixmap, QTransform, QDrag
-from PyQt5.QtCore import QMimeData, Qt
+from PyQt5.QtCore import QMimeData, Qt, QEvent
 import os
+from models.video import Video
 
 from PyQt5 import QtGui, QtCore
 from PyQt5.QtWidgets import QMainWindow, QListWidget, QWidget, QApplication, QListWidgetItem, QAbstractItemView, QLabel, QLineEdit, QVBoxLayout
@@ -33,6 +34,9 @@ class Frames():
         self.set_selected_frame_label(0)
         self.frames_widget()
 
+    def add_frame(self, frame_name, index):
+        self.flw.add_frame(frame_name, index)
+
 class FrameListWidget(QListWidget):
     def __init__(self, parent, frames, movie, layout, update_project_frames, set_selected_frame_label):
         super(QListWidget, self).__init__(parent)
@@ -46,13 +50,25 @@ class FrameListWidget(QListWidget):
 
     def set_frames_data(self):
         self.setDragDropMode(QAbstractItemView.InternalMove)
-        for i, frame_name in enumerate(self.frames):
+        list_model = self.model()
+        list_model.rowsMoved.connect(self.on_layout_change)
+        for i, frame_name in enumerate(sorted(self.frames, key = Video.sort_func)):
             item = QListWidgetItem(self)
             item_widget = FrameWidget(self, frame_name, i, self.movie, self.layout, self.update_project_frames, self.set_selected_frame_label)
             item.setSizeHint(item_widget.sizeHint())
             self.addItem(item)
             self.setItemWidget(item, item_widget)
 
+    def on_layout_change(self, moved, moved_i, moved_index, dest, dest_index):
+        self.movie.shift_frames(moved_index, dest_index)
+        self.update_project_frames()
+
+    def add_frame(self, frame_name, index):
+        item = QListWidgetItem(self)
+        item_widget = FrameWidget(self, frame_name, index, self.movie, self.layout, self.update_project_frames, self.set_selected_frame_label)
+        item.setSizeHint(item_widget.sizeHint())
+        self.addItem(item)
+        self.setItemWidget(item, item_widget)
 
 class FrameWidget(QWidget):
     def __init__(self, parent, frame_name, index, movie, layout, update_project_frames, set_selected_frame_label):

@@ -34,4 +34,6 @@ class Video:
     @staticmethod
     def sort_func(s):
         arr = s.split('.')
+        if len(arr) < 2 or not isinstance(int(arr[1]), int):
+            return -1
         return int(arr[1])

@@ -21,11 +21,8 @@ class StartWindow(QMainWindow):
         self.mode = 'camera'
         self.menu = Menu(self, self.project_change_callback)
         self.menu.menu()
-        
-        self.project_dialog = OpenProjectDialog()
-        self.project_dialog.show(self.select_project_callback)
-
         self.statusBar = StatusBar(self)
+        self.init_config()
 
         self.central_widget = QWidget()
         self.central_widget.resizeEvent = self.on_resize
@@ -45,6 +42,17 @@ class StartWindow(QMainWindow):
         self.update_timer.timeout.connect(self.playback_handler)
 
         self.movie_thread = None
+
+    def init_config(self):
+        '''
+        prompts user for project if none in Config
+        TODO - try/catch
+        '''
+        c = Config()
+        self.movie.dir = c.get_project_dir()
+        if 'new_project' in self.movie.dir:
+            self.project_dialog = OpenProjectDialog()
+            self.project_dialog.show(self.select_project_callback)
 
     def on_resize(self, event):
         self.movie_width = self.image_view.geometry().width()
@@ -97,7 +105,7 @@ class StartWindow(QMainWindow):
         frame = self.camera.get_raw_frame()
         filename = self.movie.write_frame(frame)
         self.frames.add_frame(filename, self.movie.get_next_index())
-        self.frames.scroll_area.setWidget(self.frames.frames_group)
+        # self.frames.scroll_area.setWidget(self.frames.frames_group)
 
     def playback_handler(self):
         if self.mode == 'playback':
