@@ -32,7 +32,6 @@ class StartWindow(QMainWindow):
         self.layout = QVBoxLayout(self.central_widget)
         self.controls()
         self.video_widget()
-
         self.frames = Frames(movie, self.layout)
         self.frames.frames_widget()
 

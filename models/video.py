@@ -10,7 +10,7 @@ class Video:
         c = Config()
         self.dir = os.path.join(os.getcwd(), c.get_project_dir())
         self.output_file = 'output.mp4' # TODO file name option
-        self.framerate = 1
+        self.framerate = 1000
 
     def write_mpg(self):
         fourcc = cv2.VideoWriter_fourcc(*'mp4v')
@@ -19,7 +19,7 @@ class Video:
         frame = cv2.imread(os.path.join(self.dir, images[0]))
         height, width, layers = frame.shape # sample shape
 
-        out = cv2.VideoWriter(self.output_file, fourcc, self.framerate, (width, height)) #TODO
+        out = cv2.VideoWriter(self.output_file, fourcc, 1000/self.framerate, (width, height)) #TODO
         dirs = os.listdir(self.dir)
 
         for file in sorted(os.listdir(self.dir), key = self.sort_func):
