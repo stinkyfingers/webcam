@@ -10,6 +10,7 @@ from views.menu import Menu, OpenProjectDialog
 from views.frames import Frames
 from models.statusbar import StatusBar
 from models.config import Config
+from models.movie import Movie
 
 class StartWindow(QMainWindow):
     def __init__(self, camera, movie, video):
@@ -41,6 +42,7 @@ class StartWindow(QMainWindow):
         self.update_timer.timeout.connect(self.playback_handler)
 
         self.movie_thread = None
+        self.layer_frame = False
 
     def init_config(self):
         '''
@@ -78,6 +80,7 @@ class StartWindow(QMainWindow):
     def controls(self):
         self.button_frame = QPushButton('Acquire Frame', self.central_widget)
         self.button_movie = QPushButton('Start/Stop Movie', self.central_widget)
+        self.button_layer_frame = QPushButton('Layer Frame', self.central_widget)
 
         self.slider_framerate = QSlider(Qt.Horizontal)
         self.slider_framerate.setRange(1, 10)
@@ -88,6 +91,7 @@ class StartWindow(QMainWindow):
         movie_controls = QHBoxLayout()
         movie_controls.addWidget(self.button_frame)
         movie_controls.addWidget(self.button_movie)
+        movie_controls.addWidget(self.button_layer_frame)
         self.toggle_mode_controls(movie_controls)
         movie_controls.addWidget(self.slider_framerate)
         movie_controls.addWidget(self.label_framerate)
@@ -97,6 +101,7 @@ class StartWindow(QMainWindow):
 
         self.button_frame.clicked.connect(self.write_image)
         self.button_movie.clicked.connect(self.start_stop_movie)
+        self.button_layer_frame.clicked.connect(self.set_layer_frame)
         self.slider_framerate.valueChanged.connect(self.update_framerate)
         self.label_framerate.setText("Frame Rate: {}".format(self.framerate))
 
@@ -112,11 +117,18 @@ class StartWindow(QMainWindow):
         return self.update_movie()
 
     def update_movie(self):
-        img = self.camera.get_frame()
+        camera_image = self.camera.get_frame(self.movie_width, self.movie_height)
+        camera_image = Movie.size_image(camera_image, self.movie_width, self.movie_height)
+        img = camera_image
+        # layer frame option
+        if self.layer_frame:
+            playback_frame = self.movie.get_frame(self.frames.selected_frame, self.movie_width, self.movie_height)
+            img = cv2.addWeighted(camera_image, 0.6, playback_frame, 0.4, 0)
         self.image_view.setImage(self.movie.size_image(img, self.movie_width, self.movie_height))
 
     def update_playback_frame(self):
-        self.image_view.setImage(self.movie.get_frame(self.movie.playback_index, self.movie_width, self.movie_height))
+        playback_frame = self.movie.get_frame(self.movie.playback_index, self.movie_width, self.movie_height)
+        self.image_view.setImage(playback_frame)
         self.movie.playback_index += 1
         if  self.movie.playback_index > self.movie.get_movie_length() - 1:
             self.stop_movie()
@@ -191,6 +203,9 @@ class StartWindow(QMainWindow):
         c = Config()
         self.movie.dir = c.get_project_dir()
         self.setWindowTitle(self.movie.dir)
+
+    def set_layer_frame(self):
+        self.layer_frame = not self.layer_frame
 
 class MovieThread(QThread):
     def __init__(self, camera):

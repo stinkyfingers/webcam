@@ -21,9 +21,9 @@ class Camera:
         # self.cap.set(cv2.CAP_PROP_MODE, cv2.IMREAD_COLOR)
 
 
-    def get_frame(self):
-        ret, self.last_frame = self.cap.read()
-
+    def get_frame(self, width, height):
+        self.cap.set(width, height)
+        _, self.last_frame = self.cap.read()
         # rgb translate
         frame = cv2.cvtColor(self.last_frame, self.colorspace)
         # flip vertical

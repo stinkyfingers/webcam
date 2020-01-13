@@ -100,7 +100,6 @@ class Movie:
         if moved_index < dest_index:
             self.shift_frames_down(moved_index, dest_index)
 
-# TODO is deleting frames
     def shift_frames_up(self, moved_index, dest_index):
         files = self.get_frame_details()
         os.rename(files[moved_index], os.path.join(self.dir, 'frame.temp.jpg'))
@@ -108,7 +107,6 @@ class Movie:
 
         for file in files[dest_index: moved_index]:
             os.rename(file, os.path.join(self.dir, 'frame.{}.jgp'.format(self.get_frame_number(file) + 1)))
-        print('rename', moved_file_name)
         os.rename(os.path.join(self.dir, 'frame.temp.jpg'), moved_file_name)
 
     def shift_frames_down(self, moved_index, dest_index):
