@@ -7,3 +7,4 @@ venv/
 output.*
 movie/
 movie2/
+.DS_Store

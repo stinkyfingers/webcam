@@ -8,6 +8,7 @@ import cv2
 import os
 from views.menu import Menu, OpenProjectDialog
 from views.frames import Frames
+from views.devices import Devices
 from models.statusbar import StatusBar
 from models.config import Config
 from models.movie import Movie
@@ -32,6 +33,8 @@ class StartWindow(QMainWindow):
 
         self.layout = QVBoxLayout(self.central_widget)
         self.controls()
+        self.devices = Devices(self.camera, self.layout)
+        self.devices.device_widget()
         self.video_widget()
         self.frames = Frames(movie, self.layout)
         self.frames.frames_widget()
@@ -106,10 +109,11 @@ class StartWindow(QMainWindow):
         self.label_framerate.setText("Frame Rate: {}".format(self.framerate))
 
     def write_image(self):
-        frame = self.camera.get_raw_frame()
+        frame = self.camera.get_writable_last_frame()
+        if frame == None:
+            return # TODO disable button when no movie
         filename = self.movie.write_frame(frame)
         self.frames.add_frame(filename, self.movie.get_next_index())
-        # self.frames.scroll_area.setWidget(self.frames.frames_group)
 
     def playback_handler(self):
         if self.mode == 'playback':
@@ -117,7 +121,7 @@ class StartWindow(QMainWindow):
         return self.update_movie()
 
     def update_movie(self):
-        camera_image = self.camera.get_frame(self.movie_width, self.movie_height)
+        camera_image = self.camera.get_frame()
         camera_image = Movie.size_image(camera_image, self.movie_width, self.movie_height)
         img = camera_image
         # layer frame option
