@@ -2,10 +2,12 @@ from PyQt5.QtWidgets import QLabel, QVBoxLayout, QHBoxLayout, QPushButton
 from pyqtgraph.widgets.RawImageWidget import RawImageWidget
 from models.movie import Movie
 
-class Devices():
-    def __init__(self, camera, layout):
+class DevicesModal():
+    def __init__(self, camera, layout, close):
         self.camera = camera
         self.layout = layout
+        self.close = close
+        self.device_widget()
 
     def get_devices(self):
         cameras = self.camera.list_cameras()
@@ -18,6 +20,7 @@ class Devices():
             v_layout = QVBoxLayout()
             image_view = RawImageWidget()
             image_view.setImage(Movie.size_image(frame, 200, 120))
+            image_view.setFixedHeight(140)
             v_layout.addWidget(image_view)
             button = QPushButton()
             button.setFixedWidth(200)
@@ -30,3 +33,4 @@ class Devices():
 
     def handle_device_change(self, index):
         self.camera.set_camera_number(index)
+        self.close()

@@ -1,13 +1,17 @@
 from PyQt5 import QtGui, QtCore
-from PyQt5.QtWidgets import QMenu, QAction, QDialog, QPushButton, QLineEdit, QFileDialog
+from PyQt5.QtWidgets import QMenu, QAction, QDialog, QPushButton, QLineEdit, QFileDialog, QHBoxLayout
 import sys
 import os
 from models.config import Config
+from views.devices import DevicesModal
 
 class Menu():
     def __init__(self, window, project_change_callback):
         self.window = window
         self.project_change_callback = project_change_callback
+
+    def set_camera(self, camera):
+        self.camera = camera
 
     def menu(self):
         self.main_menu = self.window.menuBar()
@@ -40,6 +44,11 @@ class Menu():
         import_menu.addAction(import_action)
         self.file_menu.addMenu(import_menu)
 
+        camera_action = QAction('Camera', self.window)
+        camera_action.setShortcut('Ctrl+C')
+        camera_action.triggered.connect(self.select_camera)
+        self.file_menu.addAction(camera_action)
+
     def close_application(self):
         sys.exit()
 
@@ -56,6 +65,10 @@ class Menu():
 
     def import_image(self):
         print("not implemented")
+
+    def select_camera(self):
+        dialog = SelectCameraDialog(self.camera)
+        dialog.show()
 
 class NewProjectDialog():
     def __init__(self):
@@ -98,3 +111,14 @@ class OpenProjectDialog():
         config.upsert({'project': project})
         project_change_callback()
         self.dialog.accept()
+
+class SelectCameraDialog():
+    def __init__(self, camera):
+        self.dialog = QDialog()
+        self.camera = camera
+
+    def show(self):
+        self.layout = QHBoxLayout()
+        self.dialog.setLayout(self.layout)
+        devices = DevicesModal(self.camera, self.layout, self.dialog.close)
+        self.dialog.exec_()

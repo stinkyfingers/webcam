@@ -50,7 +50,7 @@ class Camera:
         return frame
 
     def get_writable_last_frame(self):
-        if self.last_frame == None:
+        if self.last_frame is None:
             return None
         return np.rot90(self.last_frame, 3)
 
@@ -79,11 +79,9 @@ class Camera:
                 break
             else:
                 _, frame = cap.retrieve()
-                frame = cv2.cvtColor(frame, self.colorspace)
-                # flip vertical
-                frame = cv2.flip(frame, 1)
-                # rotate
                 frame = np.rot90(frame)
+                frame = self.crop(frame)
+                frame = cv2.cvtColor(frame, self.colorspace)
                 arr[index] = frame
             cap.release()
             index += 1
