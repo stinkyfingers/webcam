@@ -16,6 +16,8 @@ class DevicesModal():
     def device_widget(self):
         cameras = self.get_devices()
         self.h_layout = QHBoxLayout()
+        camera_number = QLabel('Current Camera: {}'.format(self.camera.cam_num))
+        self.h_layout.addWidget(camera_number)
         for camera_index, frame in cameras.items():
             v_layout = QVBoxLayout()
             image_view = RawImageWidget()
@@ -28,7 +30,6 @@ class DevicesModal():
             button.clicked.connect(lambda state, i=camera_index: self.handle_device_change(i))
             v_layout.addWidget(button)
             self.h_layout.addLayout(v_layout)
-
         self.layout.addLayout(self.h_layout)
 
     def handle_device_change(self, index):

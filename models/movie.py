@@ -10,7 +10,7 @@ class Movie:
     def __init__(self):
         c = Config()
         self.dir = os.path.join(os.getcwd(), c.get_project_dir())
-        self.file_index = self.get_next_index()
+        self.frame_number = self.get_next_frame_number()
         self.playback_index = 0
         self.colorspace = cv2.IMREAD_COLOR
         self.image_colorspace = cv2.COLOR_BGR2RGB
@@ -35,14 +35,14 @@ class Movie:
             self.image_colorspace = self.image_colormap[colorspace]
 
     def write_frame(self, frame):
-        filename = "frame.{}.jpg".format(self.file_index)
+        filename = "frame.{}.jpg".format(self.frame_number)
         path = os.path.join(self.dir, filename)
         image = cv2.cvtColor(frame, self.colorspace)
         cv2.imwrite(path, image)
-        self.file_index += 1
+        self.frame_number += 1
         return path
 
-    def get_next_index(self):
+    def get_next_frame_number(self):
         high = -1
         if not os.path.isdir(self.dir):
             return 0
@@ -54,6 +54,9 @@ class Movie:
             if int(spl[1]) > high:
                 high = int(spl[1])
         return high + 1
+
+    def get_next_index(self):
+        return len([name for name in os.listdir(self.dir) if os.path.isfile(os.path.join(self.dir, name))]) - 1
 
     def get_frame_number(self, filename):
         spl = filename.split('.')
@@ -82,7 +85,7 @@ class Movie:
         return len(os.listdir(self.dir))
 
     def new_project(self, name):
-        self.movie.file_index = self.movie.get_next_index()
+        self.movie.frame_number = self.movie.get_next_index()
         self.dir = os.path.join(os.getcwd(), name)
         if not os.path.exists(self.dir):
             os.makedirs(self.dir)

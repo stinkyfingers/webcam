@@ -33,6 +33,7 @@ class Frames():
         self.frames_widget()
 
     def add_frame(self, frame_name, index):
+        self.frames.append(frame_name)
         self.flw.add_frame(frame_name, index)
 
     def update_frame_size(self, value):

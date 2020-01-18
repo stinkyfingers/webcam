@@ -22,7 +22,6 @@ Menu help:
 http://zetcode.com/gui/pyqt5/menustoolbars/
 
 TODO list
-choose device
 new project/dir
 move frame (or cut & paste)
 delete project
@@ -31,6 +30,4 @@ frame & movie aspect ratio
 is exporting weird?
 faster framerates
 alert when export is complete (callback)
-standardize camera frame size
-clicking on new frames => index out of range
 import image
