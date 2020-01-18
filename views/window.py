@@ -83,6 +83,9 @@ class StartWindow(QMainWindow):
         self.button_frame = QPushButton('Acquire Frame', self.central_widget)
         self.button_movie = QPushButton('Start/Stop Movie', self.central_widget)
         self.button_layer_frame = QPushButton('Layer Frame', self.central_widget)
+        self.combo_aspect_ratio = QComboBox()
+        self.combo_aspect_ratio.addItem('16:9')
+        self.combo_aspect_ratio.addItem('4:3')
 
         self.slider_framerate = QSlider(Qt.Horizontal)
         self.slider_framerate.setRange(1, 10)
@@ -98,6 +101,7 @@ class StartWindow(QMainWindow):
         movie_controls.addWidget(self.slider_framerate)
         movie_controls.addWidget(self.label_framerate)
         movie_controls.addWidget(self.select_color())
+        movie_controls.addWidget(self.combo_aspect_ratio)
 
         self.layout.addLayout(movie_controls)
 
@@ -106,6 +110,7 @@ class StartWindow(QMainWindow):
         self.button_layer_frame.clicked.connect(self.set_layer_frame)
         self.slider_framerate.valueChanged.connect(self.update_framerate)
         self.label_framerate.setText("Frame Rate: {}".format(self.framerate))
+        self.combo_aspect_ratio.activated.connect(self.set_aspect_ratio)
 
     def write_image(self):
         frame = self.camera.get_writable_last_frame()
@@ -209,6 +214,10 @@ class StartWindow(QMainWindow):
 
     def set_layer_frame(self):
         self.layer_frame = not self.layer_frame
+
+    def set_aspect_ratio(self, index):
+        aspect_ratios = [16/9, 4/3]
+        self.camera.set_aspect_ratio(aspect_ratios[index])
 
 class MovieThread(QThread):
     def __init__(self, camera):

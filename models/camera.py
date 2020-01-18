@@ -21,6 +21,8 @@ class Camera:
         if not self.cap.isOpened():
             return -1
 
+    def set_aspect_ratio(self, ratio):
+        self.ratio = ratio
 
     def crop(self, frame):
         width = frame.shape[0]
