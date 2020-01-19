@@ -24,7 +24,10 @@ class Frames():
 
     def set_selected_frame_label(self, frame_index):
         self.selected_frame = frame_index
-        self.current_frame_label.setText('Current Frame: {}'.format(os.path.basename(self.frames[self.selected_frame])))
+        if len(self.frames):
+            self.current_frame_label.setText('Current Frame: {}'.format(os.path.basename(self.frames[self.selected_frame])))
+        else:
+            self.current_frame_label.setText('Current Frame: {}'.format('None'))
 
     def update_project_frames(self):
         self.layout.removeWidget(self.flw)
@@ -55,7 +58,10 @@ class Frames():
         self.slider_framesize.valueChanged.connect(self.update_frame_size)
         self.label_framesize = QLabel()
         self.label_framesize.setText("Frame Size: {}".format(self.frame_size * 100))
-        self.current_frame_label = QLabel('Current Frame: {}'.format(os.path.basename(self.frames[self.selected_frame])))
+        if len(self.frames):
+            self.current_frame_label = QLabel('Current Frame: {}'.format(os.path.basename(self.frames[self.selected_frame])))
+        else:
+            self.current_frame_label = QLabel('Current Frame: {}'.format('None'))
         self.current_frame_label.setStyleSheet("background-color: #000; color: #eee; border: 1px inset grey; max-height: 15px;")
         self.layout_framesize.addWidget(self.current_frame_label)
         self.layout_framesize.addWidget(self.label_framesize)
