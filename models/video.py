@@ -30,6 +30,7 @@ class Video:
 
         cv2.destroyAllWindows()
         out.release()
+        return self.output_file
 
     @staticmethod
     def sort_func(s):

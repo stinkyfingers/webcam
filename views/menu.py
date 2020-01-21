@@ -1,5 +1,5 @@
 from PyQt5 import QtGui, QtCore
-from PyQt5.QtWidgets import QMenu, QAction, QDialog, QPushButton, QLineEdit, QFileDialog, QHBoxLayout
+from PyQt5.QtWidgets import QMenu, QAction, QDialog, QPushButton, QLineEdit, QFileDialog, QHBoxLayout, QLabel, QVBoxLayout, QLineEdit
 import sys
 import os
 from models.config import Config
@@ -61,7 +61,9 @@ class Menu():
         dialog.show(self.project_change_callback)
 
     def export(self):
-        self.window.video.write_mpg()
+        ExportDialog(self.window.video).show()
+        file = self.window.video.write_mpg()
+        ExportCompleteDialog(file).show()
 
     def import_image(self):
         print("not implemented")
@@ -124,3 +126,39 @@ class SelectCameraDialog():
         self.dialog.setLayout(self.layout)
         devices = DevicesModal(self.camera, self.layout, self.dialog.close)
         self.dialog.exec_()
+
+class ExportCompleteDialog():
+    def __init__(self, output_file):
+        self.dialog = QDialog()
+        self.output_file = output_file
+
+    def show(self):
+        close = QPushButton("Close")
+        close.clicked.connect(self.dialog.close)
+        text = QLabel("Export complete: {}".format(self.output_file))
+        layout = QVBoxLayout()
+        layout.addWidget(text)
+        layout.addWidget(close)
+        self.dialog.setLayout(layout)
+        self.dialog.exec_()
+
+class ExportDialog():
+    def __init__(self, video):
+        self.dialog = QDialog()
+        self.video = video
+
+    def show(self):
+        button = QPushButton("OK")
+        button.clicked.connect(self.dialog.close)
+        label = QLabel("Export as:")
+        text = QLineEdit()
+        layout = QVBoxLayout()
+        layout.addWidget(label)
+        layout.addWidget(text)
+        layout.addWidget(button)
+        self.dialog.setLayout(layout)
+        self.dialog.exec_()
+        filename = text.text()
+        if not filename.endswith(".mp4"):
+            filename = filename + ".mp4"
+        self.video.output_file = filename

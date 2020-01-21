@@ -25,7 +25,6 @@ TODO list
 move frame (or cut & paste)
 delete project
 name movie during export
-frame & movie aspect ratio
 is exporting weird?
 faster framerates
 alert when export is complete (callback)
