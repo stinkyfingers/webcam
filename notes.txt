@@ -31,3 +31,6 @@ is exporting weird?
 faster framerates
 alert when export is complete (callback)
 import image
+new project should open project
+handle no cameras error
+integrate sound

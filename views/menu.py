@@ -53,7 +53,7 @@ class Menu():
         sys.exit()
 
     def new_project(self):
-        dialog = NewProjectDialog()
+        dialog = NewProjectDialog(self.project_change_callback)
         dialog.show()
 
     def open_project(self):
@@ -71,8 +71,9 @@ class Menu():
         dialog.show()
 
 class NewProjectDialog():
-    def __init__(self):
+    def __init__(self, project_change_callback):
         self.dialog = QDialog()
+        self.project_change_callback = project_change_callback
 
     def show(self):
         self.textbox = QLineEdit(self.dialog)
@@ -97,6 +98,7 @@ class NewProjectDialog():
             os.mkdir(project)
         config = Config()
         config.upsert({'project': project})
+        self.project_change_callback()
         self.dialog.accept()
 
 class OpenProjectDialog():
