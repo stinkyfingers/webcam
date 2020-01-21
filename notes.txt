@@ -24,10 +24,8 @@ http://zetcode.com/gui/pyqt5/menustoolbars/
 TODO list
 move frame (or cut & paste)
 delete project
-name movie during export
 is exporting weird?
 faster framerates
-alert when export is complete (callback)
 import image
 handle no cameras error
 integrate sound

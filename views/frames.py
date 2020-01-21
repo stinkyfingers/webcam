@@ -15,7 +15,7 @@ class Frames():
         self.layout = layout
         self.frame_size = 1
         self.frames = self.movie.get_frame_details()
-        self.selected_frame = 0
+        self.selected_frame = len(self.frames) - 1
         self.controls()
 
     def frames_widget(self):
@@ -38,6 +38,7 @@ class Frames():
     def add_frame(self, frame_name, index):
         self.frames.append(frame_name)
         self.flw.add_frame(frame_name, index)
+        self.selected_frame = index
 
     def update_frame_size(self, value):
         self.frame_size = value
