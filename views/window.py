@@ -80,6 +80,8 @@ class StartWindow(QMainWindow):
         self.layout.addLayout(movie_view)
 
     def controls(self):
+        self.setWindowTitle(self.movie.dir)
+
         self.button_frame = QPushButton('Acquire Frame', self.central_widget)
         self.button_movie = QPushButton('Start/Stop Movie', self.central_widget)
         self.button_layer_frame = QPushButton('Layer Frame', self.central_widget)
@@ -109,7 +111,7 @@ class StartWindow(QMainWindow):
         self.button_movie.clicked.connect(self.start_stop_movie)
         self.button_layer_frame.clicked.connect(self.set_layer_frame)
         self.slider_framerate.valueChanged.connect(self.update_framerate)
-        self.label_framerate.setText("Frame Rate: {}".format(self.framerate))
+        self.label_framerate.setText("Frame Rate: {0:.1f} fps".format(1000/self.framerate))
         self.combo_aspect_ratio.activated.connect(self.set_aspect_ratio)
 
     def write_image(self):
@@ -149,7 +151,7 @@ class StartWindow(QMainWindow):
             restart = True
         self.framerate = value * 100
         self.video.framerate = self.framerate
-        self.label_framerate.setText("Frame Rate: {}".format(self.framerate))
+        self.label_framerate.setText("Frame Rate: {0:.1f} fps".format(1000/self.framerate))
         if restart:
             self.movie_thread.wait()
             self.start_movie()

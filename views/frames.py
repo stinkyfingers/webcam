@@ -52,7 +52,7 @@ class Frames():
         self.layout_framesize = QHBoxLayout()
         self.widget_framesize.resize(1,1)
         self.slider_framesize = QSlider(Qt.Horizontal)
-        self.slider_framesize.setRange(1, 10)
+        self.slider_framesize.setRange(1, 3)
         self.slider_framesize.setTickPosition(QSlider.TicksBelow)
         self.slider_framesize.setValue(self.frame_size)
         self.slider_framesize.valueChanged.connect(self.update_frame_size)
