@@ -24,6 +24,7 @@ class Frames():
 
     def set_selected_frame_label(self, frame_index):
         self.selected_frame = frame_index
+        self.movie.playback_index = frame_index
         if len(self.frames):
             self.current_frame_label.setText('Current Frame: {}'.format(os.path.basename(self.frames[self.selected_frame])))
         else:

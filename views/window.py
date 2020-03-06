@@ -83,7 +83,7 @@ class StartWindow(QMainWindow):
         self.setWindowTitle(self.movie.dir)
 
         self.button_frame = QPushButton('Acquire Frame', self.central_widget)
-        self.button_movie = QPushButton('Start/Stop Movie', self.central_widget)
+        self.button_movie = QPushButton('Start/Stop {}'.format(self.mode.capitalize()), self.central_widget)
         self.button_layer_frame = QPushButton('Layer Frame', self.central_widget)
         self.combo_aspect_ratio = QComboBox()
         self.combo_aspect_ratio.addItem('16:9')
@@ -119,7 +119,7 @@ class StartWindow(QMainWindow):
         if frame is None:
             return # TODO disable button when no movie
         filename = self.movie.write_frame(frame)
-        self.frames.add_frame(filename, self.movie.get_next_index())
+        self.frames.add_frame(filename, self.frames.selected_frame)
 
     def playback_handler(self):
         if self.mode == 'playback':
@@ -198,6 +198,7 @@ class StartWindow(QMainWindow):
         if self.sender().text() == 'Playback Mode':
             self.mode = 'playback'
             self.button_frame.setDisabled(True)
+        self.button_movie.setText('Start/Stop {}'.format(self.mode.capitalize()))
 
     def close(self):
         self.image_view.close()
