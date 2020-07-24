@@ -30,3 +30,4 @@ import image
 handle no cameras error
 integrate sound
 select frame
+setup.py file
